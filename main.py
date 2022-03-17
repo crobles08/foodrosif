@@ -1,106 +1,142 @@
 from flask import Flask, flash, render_template, request, redirect, url_for, session
-#render_template=>es para ver lo de las plantillas y esta busca siempre la carpeta template
 import mysql.connector
 import re
+from hashlib import sha256
+from email.message import EmailMessage
+from smtplib import SMTP
 
 db = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="",
-    port=3306,
-    database="foodrosif"
+    host="localhost", user="root", password="", port=3306, database="foodrosif"
 )
 db.autocommit = True
 
-app=Flask(__name__)
+app = Flask(__name__)
 
-app.secret_key = '##91!IyAj#FqkZ2C'
+app.secret_key = "##91!IyAj#FqkZ2C"
+
 
 @app.get("/")
 def inicio():
-    
+
     return render_template("index.html")
 
 
+# =======================================================================================================================================
 
 
-
-#=======================================================================================================================================
-
-@app.route('/login/', methods=['GET', 'POST'])
+@app.route("/login", methods=["GET", "POST"])
 def login():
+    if (
+        request.method == "POST"
+        and "usuario" in request.form
+        and "contraseña" in request.form
+    ):
 
-    msg = ''
-
-    if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
-
-        username = request.form['username']
-        password = request.form['password']
+        usuario = request.form["usuario"]
+        contraseña = request.form["contraseña"]
+        contraseña=sha256(contraseña.encode("utf-8")).hexdigest()
 
         cursor = db.cursor()
-        cursor.execute('SELECT * FROM usuarios WHERE usuario = %s AND contraseña = %s', (username, password,))
+        cursor.execute("SELECT * FROM usuarios WHERE usuario = %s AND contraseña = %s", (usuario, contraseña,),)
+
+        cuenta = cursor.fetchone()
+        cursor.close()
+
+        if cuenta:
+
+            session["login"] = True
+            session["id_usuario"] = cuenta[0]
+            session["usuario"] = cuenta[1]
+
+            return "¡Has iniciado sesión con éxito!"
+        else:
+
+            flash("¡Nombre de usuario/contraseña incorrectos!")
+
+    return render_template("index.html")
+
+
+# ================================================================================================================================
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if (
+        request.method == "POST"
+        and "usuario" in request.form
+        and "contraseña" in request.form
+        and "email" in request.form
+    ):
+
+        usuario = request.form["usuario"]
+        contraseña = request.form["contraseña"]
+        contraseña=sha256(contraseña.encode("utf-8")).hexdigest()
+        email = request.form["email"]
+
+        msg= EmailMessage()
+        msg.set_content('Te haz registrado exitosamente <a href="http://localhost:5000/register">verifica aquí</a>')
+
+        msg['Subject']='Registro en Foodrosif'
+        msg['From']='shaydruano2020@itp.edu.co'
+        msg['To']= email
+
+        username = 'shaydruano2020@itp.edu.co'
+        password = '100666' #==================================================================
+
+        server = SMTP('smtp.gmail.com:587')
+        server.starttls()
+        server.login(username, password)
+
+        server.send_message(msg)
+        server.quit()
+
+
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM usuarios WHERE usuario = %s", (usuario,))
+        cuenta = cursor.fetchone()
         
 
-        usuario = cursor.fetchone()
-        cursor.close()
-
-        if usuario:
-
-            session['login'] = True
-            session['id_usuario'] = usuario[0] 
-            session['usuario'] = (usuario[1] or usuario[3])
-
-            return 'Logged in successfully!'
+        if cuenta:
+            flash("¡La cuenta ya existe!")
+            
+        elif not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+            flash("¡Dirección de correo electrónico no válida!")
+           
+        elif not re.match(r"[A-Za-z0-9]+", usuario):
+            flash("¡El usuario debe contener solo caracteres y números!")
+            
+        elif not usuario or not contraseña or not email:
+            flash("¡Por favor llene el formulario!")
+            
         else:
+            cursor.execute(
+                "INSERT INTO usuarios VALUES (NULL, %s, %s, %s, NULL)",
+                (
+                    usuario,
+                    contraseña,
+                    email,
+                ),
+            )
+            cursor.close()
+            flash("¡Te has registrado con éxito!")
             
-            msg = 'Incorrect username/password!'
-            
 
-    return render_template('index.html', msg=msg)
+    elif request.method == "POST":
 
-#================================================================================================================================
+        flash("¡Por favor llene el formulario!")
 
-@app.route('/login/register', methods=['GET', 'POST'])
-def register():
-    msg = ''
-    if request.method == 'POST' and 'username' in request.form and 'password' in request.form and 'email' in request.form:
+    return render_template("Registo-cuenta.html")
 
-        username = request.form['username']
-        password = request.form['password']
-        email = request.form['email']
 
-        cursor = db.cursor()
+# ================================================================================================================================
 
-        cursor.execute('SELECT * FROM usuarios WHERE usuario = %s', (username,))
-        account = cursor.fetchone()
-        cursor.close()
 
-        if account:
-            msg = 'Account already exists!'
-        elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
-            msg = 'Invalid email address!'
-        elif not re.match(r'[A-Za-z0-9]+', username):
-            msg = 'Username must contain only characters and numbers!'
-        elif not username or not password or not email:
-            msg = 'Please fill out the form!'
-        else:
-            cursor.execute('INSERT INTO usuarios VALUES (NULL, %s, %s, %s, NULL)', (username, password, email,))
-            
-            msg = 'You have successfully registered!'
+@app.route("/login/cerrar_Sesion")
+def cerrarSesion():
+    session.pop("login", None)
+    session.pop("id_usuario", None)
+    session.pop("usuario", None)
+    return redirect(url_for("login"))
 
-    elif request.method == 'POST':
-
-        msg = 'Please fill out the form!'
-
-    return render_template('Registo-cuenta.html', msg=msg)
-
-#================================================================================================================================
-
-@app.route('/login/logout')
-def logout():
-   session.pop('login', None)
-   session.pop('id_usuario', None)
-   session.pop('usuario', None)
-   return redirect(url_for('login'))
 
 app.run(debug=True)

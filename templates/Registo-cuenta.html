@@ -10,6 +10,18 @@ Registro usuario
     <h1>foodrosif!</h1>
 </center>
 
+<div class="">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul class="alert alert-danger">
+        {% for message in messages %}
+        <li>{{message}}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+</div>
+
 <div class="register">
     <h1>Registro</h1>
     <div class="links">
@@ -18,15 +30,15 @@ Registro usuario
     </div>
     <form action="{{ url_for('register') }}" method="post" autocomplete="off">
         <label for="username">
-            <i class="fas fa-user"></i>
+            <ion-icon name="person"></ion-icon> 
         </label>
-        <input type="text" name="username" placeholder="Username" id="username" required>
+        <input type="text" name="usuario" placeholder="Username" id="usuario" required>
         <label for="password">
-            <i class="fas fa-lock"></i>
+            <ion-icon name="lock"></ion-icon>
         </label>
-        <input type="password" name="password" placeholder="Password" id="password" required>
+        <input type="password" name="contraseña" placeholder="Password" id="contraseña" required>
         <label for="email">
-            <i class="fas fa-envelope"></i>
+            <ion-icon name="mail"></ion-icon>
         </label>
         <input type="email" name="email" placeholder="Email" id="email" required>
         <div class="msg">{{ msg }}</div>
