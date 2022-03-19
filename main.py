@@ -29,11 +29,11 @@ def login():
     if (
         request.method == "POST"
         and "usuario" in request.form
-        and "contraseña" in request.form
+        and "pass" in request.form
     ):
 
         usuario = request.form["usuario"]
-        contraseña = request.form["contraseña"]
+        contraseña = request.form["pass"]
         contraseña=sha256(contraseña.encode("utf-8")).hexdigest()
 
         cursor = db.cursor()
@@ -77,11 +77,11 @@ def register():
         msg.set_content('Te haz registrado exitosamente <a href="http://localhost:5000/register">verifica aquí</a>')
 
         msg['Subject']='Registro en Foodrosif'
-        msg['From']='shaydruano2020@itp.edu.co'
+        msg['From']='ssss@itp.edu.co'
         msg['To']= email
 
-        username = 'shaydruano2020@itp.edu.co'
-        password = '100666' #==================================================================
+        username = 'ssss@itp.edu.co'
+        password = 'ssss' #==================================================================
 
         server = SMTP('smtp.gmail.com:587')
         server.starttls()
