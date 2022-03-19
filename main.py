@@ -64,12 +64,12 @@ def register():
     if (
         request.method == "POST"
         and "usuario" in request.form
-        and "contraseña" in request.form
+        and "pass" in request.form
         and "email" in request.form
     ):
 
         usuario = request.form["usuario"]
-        contraseña = request.form["contraseña"]
+        contraseña = request.form["pass"]
         contraseña=sha256(contraseña.encode("utf-8")).hexdigest()
         email = request.form["email"]
 
