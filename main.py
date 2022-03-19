@@ -53,7 +53,7 @@ def login():
 
             flash("¡Nombre de usuario/contraseña incorrectos!")
 
-    return render_template("index.html")
+    return render_template("inicio_sesion.html")
 
 
 # ================================================================================================================================

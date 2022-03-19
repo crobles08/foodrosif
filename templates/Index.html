@@ -9,37 +9,12 @@ foodrosif!
 <center>
     <h1>foodrosif!</h1>
 </center>
-
 <div class="">
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    <ul class="alert alert-danger">
-        {% for message in messages %}
-        <li>{{message}}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
-    {% endwith %}
-</div>
-
-<div class="login">
     <h1>Iniciar sesión</h1>
     <div class="links">
-        <a href="{{ url_for('login') }}" class="active">Iniciar sesión</a>
-        <a href="{{ url_for('register') }}">Registro</a>
+        <button><a href="{{ url_for('login') }}" class="active">Iniciar sesión</a></button>
     </div>
-    <form action="{{ url_for('login') }}" method="POST">
-        <label for="username">
-            <i class="fas fa-user"></i>
-        </label>
-        <input type="text" name="usuario" placeholder="Username" id="usuario" required>
-        <label for="password">
-            <i class="fas fa-lock"></i>
-        </label>
-        <input type="password" name="contraseña" placeholder="Password" id="contraseña" required>
-        <div class="msg">{{ msg }}</div>
-        <input type="submit" value="Login">
-    </form>
+</div>
 </div>
 
 
