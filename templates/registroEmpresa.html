@@ -1,61 +1,81 @@
-{% extends 'base.html' %} {% block titulo %} Registro empresa {% endblock %} {%
-block contenido %}
-<section class="contact-box">
-  <div class="row no-gutters bg-dark">
-    <div class="col-xl-5 col-lg-12 register-bg">
-      <div class="position-absolute testimonial p-4">
-        <h3 class="font-weight-bold text-light">Foodrosif!</h3>
-        <p class="lead text-light">¡Las cartas a palma de tu mano!</p>
-      </div>
-    </div>
-  </div>
-  
-  <div class="col-xl-7 col-lg-12 d-flex">
-    <div class="container align-self-center p-6">
-      <h2 class="font-weight-bold">Registro empresa</h2>
-      <div class="flash">
-        {% with messages = get_flashed_messages() %} {% if messages %}
-        <ol class="alert alert-danger">
-          {% for message in messages %}
-          <li>{{message}}</li>
-          {% endfor %}
-        </ol>
-        {% endif %} {% endwith %}
-      </div>
-      <form action="{{ url_for('registerEmpresa') }}" method="post" class="form-group" autocomplete="off">
-        <div class="form-group mb-3">
-          <label class="font-weight-bold">Nombre de la empresa <span class="text-danger">*</span></label>
-          <input class="form-control" type="text" name="nombre" placeholder="Nombre empresa" value="{{nombre}}"/>
-        </div>
-        <div class="form-group mb-3">
-          <label class="font-weight-bold">Descripcion <span class="text-danger">*</span></label>
-          <input class="form-control" type="text" name="descripcion" placeholder="Descripcion Empresa" value="{{descripcion}}"/>
-        </div>
-        <div class="form-group mb-3">
-          <label class="font-weight-bold">Celular <span class="text-danger">*</span></label>
-          <input class="form-control" type="text" name="celular" placeholder="Celular" value="{{celular}}"/>
-        </div>
-        <div class="form-group mb-3">
-          <label class="font-weight-bold">Direccion <span class="text-danger">*</span></label>
-          <input class="form-control" type="text" name="direccion" placeholder="Direccion" value="{{direccion}}"/>
-        </div>
-        <div class="form-group mb-3">
-          <label class="font-weight-bold">Correo electronico <span class="text-danger">*</span></label>
-          <input class="form-control" type="email" name="email" placeholder="Correo electronico" value="{{email}}"/>
-        </div>
-        <div class="form-group mb-3">
-          <label class="font-weight-bold">Contraseña <span class="text-danger">*</span></label>
-          <input class="form-control" type="password" name="password" placeholder="Contraseña" value="{{password}}"/>
-        </div>
-        <div class="msg">{{ msg }}</div>
+{% extends 'base.html' %}
+{% block titulo %}
+Registro empresa
+{% endblock %}
+{%block contenido %}
 
-        <div class="form-group mb-5">
-          <button type="submit" class="btn btn-outline-dark d-inline text-light mr-2 mb-3"><i class="icon ion-md-person"></i> Registrar</button>
+<section class="contact-box">
+
+    <div class="row no-gutters bg-dark">
+
+        <div class="col-xl-5 col-lg-12 register-bg">
+
+            <div class="position-absolute testimonial p-4">
+                <h3 class="font-weight-bold text-light">Foodrosif!</h3>
+                <p class="lead text-light">¡Las cartas a palma de tu mano!</p>
+            </div>
         </div>
-      </form>
-      <a href="{{ url_for('login') }}"><small class="d-inline-block text-muted mt-5">Iniciar sesion</small></a>
+
+
+        <div class="col-xl-7 col-lg-12 d-flex">
+            <div class="container align-self-center p-6">
+                <h2 class="font-weight-bold">Registro empresa</h2>
+                <div class="flash">
+                    {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                    <ul class="alert alert-danger">
+                        {% for message in messages %}
+                        <li>{{message}}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    {% endwith %}
+                </div>
+
+                <form action="{{ url_for('registerEmpresa') }}" method="POST">
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold">Nombre de la empresa <span class="text-danger">*</span></label>
+                        <input class="form-control" type="text" name="nombre" placeholder="Nombre empresa"
+                            value="{{nombre}}" />
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold">Descripcion <span class="text-danger">*</span></label>
+                        <input class="form-control" type="text" name="descripcion" placeholder="Descripcion Empresa"
+                            value="{{descripcion}}" />
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold">Celular <span class="text-danger">*</span></label>
+                        <input class="form-control" type="text" name="celular" placeholder="Celular"
+                            value="{{celular}}" />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold">Direccion <span class="text-danger">*</span></label>
+                        <input class="form-control" type="text" name="direccion" placeholder="Direccion"
+                            value="{{direccion}}" />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold">Correo electronico <span class="text-danger">*</span></label>
+                        <input class="form-control" type="email" name="email" placeholder="Correo electronico"
+                            value="{{email}}" />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold">Contraseña <span class="text-danger">*</span></label>
+                        <input class="form-control" type="password" name="password" placeholder="Contraseña"
+                            value="{{password}}" />
+                    </div>
+                    <div class="msg">{{ msg }}</div>
+
+                    <div class="form-group mb-5">
+                        <button type="submit" class="btn btn-outline-dark d-inline text-light mr-2 mb-3"><i class="icon ion-md-person-add lead align-middle mr-2"></i> Registrar</button>
+                    </div>
+                </form>
+                <a href="{{ url_for('login') }}"><small class="d-inline-block text-muted mt-5">Iniciar
+                        sesion</small></a>
+            </div>
+        </div>
     </div>
-  </div>
 </section>
 
 {% endblock %}
