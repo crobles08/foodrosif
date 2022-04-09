@@ -63,6 +63,20 @@ body {
     bottom: 10px;
 }
 
+.contenedor {
+    position: relative;
+}
+  
+.inicio {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    margin: -50px 0 0 -450px; 
+}
+
+.titulo{
+    font-size: 14rem;
+}
 
 
 
