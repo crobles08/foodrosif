@@ -1,48 +1,51 @@
-:root{
+:root {
     --color-dark: #15181f;
     --color-dark-x: #2d343f;
     --color-dark-xx: #1f232b;
     --color-light: #ffffff;
-    --color-grey: #f5f6fB; 
+    --color-grey: #f5f6fB;
 }
 
-body{
+body {
     font-family: 'Roboto', sans-serif;
     font-size: 1.1rem;
     font-weight: 380;
+    background: #000000;
+    background: -webkit-linear-gradient(to right, #434343, #000000);
+    background: linear-gradient(to right, #434343, #000000);
     background-color: var(--color-grey);
     color: var(--color-light);
     letter-spacing: .05rem;
 }
 
-.bg-light{
+.bg-light {
     background-color: var(--color-light) !important;
 }
 
-.bg-dark{
+.bg-dark {
     background-color: var(--color-dark) !important;
 }
 
-.p-6{
+.p-6 {
     padding: 4rem 7rem;
 }
 
-.contact-box{
+.contact-box {
     padding: 3rem;
 }
 
-.btn{
+.btn {
     font-weight: 380;
     padding: 1rem 1rem;
     border-radius: 4rem;
     min-width: 15rem;
 }
 
-.btn-outline-dark{
-    border:  2px solid var(--color-dark-xx);
+.btn-outline-dark {
+    border: 2px solid var(--color-dark-xx);
 }
 
-.form-control{
+.form-control {
     background-color: var(--color-dark-xx);
     border: 2px solid var(--color-dark-xx);
     border-radius: .2rem;
@@ -56,7 +59,7 @@ body{
     min-height: 100vh;
 }
 
-.testimonial{
+.testimonial {
     bottom: 10px;
 }
 
@@ -64,7 +67,7 @@ body{
 
 
 
-.flash{
+.flash {
     margin: 0 auto;
 }
 
@@ -136,7 +139,3 @@ body{
     width: 290px;
     height: 220px;
 }*/
-
-
-
-
