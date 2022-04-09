@@ -1,9 +1,12 @@
+
 from flask import Flask, flash, render_template, request, redirect, url_for, session
+from itsdangerous import SignatureExpired, URLSafeTimedSerializer
 import mysql.connector
 import re
 from hashlib import sha256
 from email.message import EmailMessage
 from smtplib import SMTP
+from flask_mail import Mail, Message
 
 db = mysql.connector.connect(
     host="localhost", user="root", password="", port=3306, database="foodrosif"
@@ -11,13 +14,13 @@ db = mysql.connector.connect(
 db.autocommit = True
 
 app = Flask(__name__)
-
+#app.config.from_pyfile('config.cfg')
 app.secret_key = "##91!IyAj#FqkZ2C"
-
+mail=Mail(app)
+s=URLSafeTimedSerializer('Thisisasecret')
 
 @app.get("/")
 def inicio():
-
     return render_template("index.html")
 
 
@@ -28,114 +31,212 @@ def inicio():
 def login():
     if (
         request.method == "POST"
-        and "usuario" in request.form
-        and "pass" in request.form
+        and "email" in request.form
+        and "password" in request.form
     ):
 
-        usuario = request.form["usuario"]
-        contraseña = request.form["pass"]
-        contraseña=sha256(contraseña.encode("utf-8")).hexdigest()
+        email = request.form["email"]
+        password = request.form["password"]
+        passwordencriptada = sha256(password.encode("utf-8")).hexdigest()
 
-        cursor = db.cursor()
-        cursor.execute("SELECT * FROM usuarios WHERE usuario = %s AND contraseña = %s", (usuario, contraseña,),)
+        cursor = db.cursor(dictionary=True)
+        cursor.execute(
+            "SELECT * FROM usuarios WHERE email = %s AND contraseña = %s AND confirmacion='1'",
+            (
+                email,
+                passwordencriptada,
+            ),
+        )
 
         cuenta = cursor.fetchone()
         cursor.close()
 
         if cuenta:
-
             session["login"] = True
-            session["id_usuario"] = cuenta[0]
-            session["usuario"] = cuenta[1]
-
+            session["id_usuario"] = cuenta["id_usuario"]
+            session["email"] = cuenta["email"]
             return "¡Has iniciado sesión con éxito!"
         else:
-
             flash("¡Nombre de usuario/contraseña incorrectos!")
+            return render_template(
+                "inicioSesion.html",
+                email=email,
+                password=password,
+            )    
+            
 
-    return render_template("inicio_sesion.html")
+    return render_template("inicioSesion.html")
+
+
+# ===============================================================================================================================
 
 
 # ================================================================================================================================
 
 
-@app.route("/register", methods=["GET", "POST"])
-def register():
+@app.route("/registerEmpresa", methods=["GET", "POST"])
+def registerEmpresa():
     if (
         request.method == "POST"
-        and "usuario" in request.form
-        and "pass" in request.form
+        and "nombre" in request.form
+        and "descripcion" in request.form
+        and "celular" in request.form
+        and "direccion" in request.form
         and "email" in request.form
+        and "password" in request.form
     ):
 
-        usuario = request.form["usuario"]
-        contraseña = request.form["pass"]
-        contraseña=sha256(contraseña.encode("utf-8")).hexdigest()
+        nombre = request.form["nombre"]
+        descripcion = request.form["descripcion"]
+        celular = request.form["celular"]
+        direccion = request.form["direccion"]
         email = request.form["email"]
+        password = request.form["password"]
 
-        msg= EmailMessage()
-        msg.set_content('Te haz registrado exitosamente <a href="http://localhost:5000/register">verifica aquí</a>')
-
-        msg['Subject']='Registro en Foodrosif'
-        msg['From']='ssss@itp.edu.co'
-        msg['To']= email
-
-        username = 'ssss@itp.edu.co'
-        password = 'ssss' #==================================================================
-
-        server = SMTP('smtp.gmail.com:587')
-        server.starttls()
-        server.login(username, password)
-
-        server.send_message(msg)
-        server.quit()
-
-
-        cursor = db.cursor()
-        cursor.execute("SELECT * FROM usuarios WHERE usuario = %s", (usuario,))
+        cursor = db.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM empresas WHERE email = %s", (email,))
         cuenta = cursor.fetchone()
         
+        token=s.dumps(email, salt='email-confirm')
+        link= url_for('confirmarEmail', token=token, _external=True)
+        caracterspecial = ["$", "@", "#", "%"]
+        is_valid = True
 
         if cuenta:
-            flash("¡La cuenta ya existe!")
-            
-        elif not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+            flash("Ya hay una empresa registrada con este correo!")
+            is_valid = False
+
+        if nombre == "":
+            flash("El nombre es requerido")
+            is_valid = False
+
+        if descripcion == "":
+            flash("La descripcion es requerida")
+            is_valid = False
+
+        if not (len(celular) == 10):
+            flash("Ingresar bien el número de celular!")
+            is_valid = False
+
+        if direccion == "":
+            flash("La direccion es requerida")
+            is_valid = False
+
+        if not (len(password) >= 8 and len(password) <= 20):
+            flash("La contraseña debe tener min 8 y max 20 caracteres")
+            is_valid = False
+
+        if not any(char.isdigit() for char in password):
+            flash("La contraseña debe tener al menos un número")
+            is_valid = False
+
+        if not any(char.isupper() for char in password):
+            flash("La contraseña debe tener al menos una letra mayúscula")
+            is_valid = False
+
+        if not any(char.islower() for char in password):
+            flash("La contraseña debe tener al menos una letra minúscula")
+            is_valid = False
+
+        if not any(char in caracterspecial for char in password):
+            flash("La contraseña debe tener al menos uno de los símbolos $,@,%,#")
+            is_valid = False
+
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
             flash("¡Dirección de correo electrónico no válida!")
-           
-        elif not re.match(r"[A-Za-z0-9]+", usuario):
-            flash("¡El usuario debe contener solo caracteres y números!")
-            
-        elif not usuario or not contraseña or not email:
+            is_valid = False
+
+        if (
+            not nombre
+            or not descripcion
+            or not celular
+            or not direccion
+            or not email
+            or not password
+        ):
             flash("¡Por favor llene el formulario!")
-            
-        else:
-            cursor.execute(
-                "INSERT INTO usuarios VALUES (NULL, %s, %s, %s, NULL)",
-                (
-                    usuario,
-                    contraseña,
-                    email,
-                ),
-            )
-            cursor.close()
-            flash("¡Te has registrado con éxito!")
-            
+            is_valid = False
+            # if is_valid:
+            #   return is_valid
+
+        if is_valid == False:
+            return render_template(
+                "registroEmpresa.html",
+                nombre=nombre,
+                descripcion=descripcion,
+                celular=celular,
+                direccion=direccion,
+                email=email,
+                password=password,
+            )            
+        
+
+        password = sha256(password.encode("utf-8")).hexdigest()
+        cursor.execute(
+            "INSERT INTO empresas(nombre, descripcion, celular, direccion) VALUES (%s, %s, %s, %s)",
+            (
+                nombre,
+                descripcion,
+                celular,
+                direccion,
+            ),
+        )
+        cursor.execute("SELECT * FROM empresas ORDER BY id_empresa DESC LIMIT 1 " )
+        row=cursor.fetchone()
+        if row is not None:
+            row = row["id_empresa"]
+        print(row)
+        cursor.execute(
+            "INSERT INTO usuarios(email, contraseña, id_empresa) VALUES (%s, %s, %s)",
+            (
+                email,
+                password,
+                row,
+            ),
+        )
+        #cursor.commit()
+        cursor.close()
+        msg = EmailMessage()
+        msg.set_content("Confirmar tu correo aqui: {} ".format(link))
+        msg["Subject"] = "Registro en Foodrosif"
+        msg["From"] = "shaydruano2020@itp.edu.co"
+        msg["To"] = email
+        username = "shaydruano2020@itp.edu.co"
+        password = "1006663258"  # ==================================================================
+        server = SMTP("smtp.gmail.com:587")
+        server.starttls()
+        server.login(username, password)
+        server.send_message(msg)
+        server.quit()
+        flash("¡Te has registrado con éxito!")
 
     elif request.method == "POST":
 
         flash("¡Por favor llene el formulario!")
 
-    return render_template("Registo-cuenta.html")
+    return render_template("registroEmpresa.html")
 
 
-# ================================================================================================================================
-
-
-@app.route("/login/cerrar_Sesion")
+# ===========================================================================================================================================
+@app.route("/login/confirmarEmail/<token>")
+def confirmarEmail(token):
+    try:
+        email=s.loads(token, salt='email-confirm', max_age=60)
+        cursor = db.cursor()
+        cursor.execute("UPDATE usuarios SET confirmacion='1' WHERE email='"+email+"'")
+        cursor.close()
+    except SignatureExpired:
+        cursor = db.cursor()
+        cursor.execute("DELETE FROM usuarios WHERE email='"+email+"' AND confirmacion='0'")
+        cursor.close()
+        return "<h1>paila nea</h1>"
+    return "<h1>"+email+" R nea</h1>"
+# ===========================================================================================================================================
+@app.get("/login/cerrar_Sesion")
 def cerrarSesion():
     session.pop("login", None)
     session.pop("id_usuario", None)
-    session.pop("usuario", None)
+    session.pop("email", None)
     return redirect(url_for("login"))
 
 

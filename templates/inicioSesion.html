@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block titulo %}
+foodrosif!
+{% endblock %}
+
+{% block contenido %}
+
+
+
+
+
+<div class="login" id="general">
+    <section class="contact-box">
+        <div class="row no-gutters bg-dark">
+            <div class="col-xl-5 col-lg-12 register-bg">
+                <div class="position-absolute testimonial p-4">
+                    <h3 class="font-weight-bold text-light">Foodrosif!</h3>
+                    <p class="lead text-light">¡Las cartas a palma de tu mano!</p>
+                </div>
+            </div>
+            <div class="col-xl-7 col-lg-12 d-flex">
+                <div class="container align-self-center p-6">
+                    <h2 class="font-weight-bold">Iniciar sesion</h2>
+                    <div class="flash">
+                        {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                        <ul class="alert alert-danger">
+                            {% for message in messages %}
+                            <li>{{message}}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                        {% endwith %}
+                    </div>
+
+                    <form action="{{ url_for('login') }}" method="POST">
+                        
+                            <div class="form-group mb-3">
+                                <label class="font-weight-bold">Correo electronico <span
+                                        class="text-danger">*</span></label>
+                                <input type="email" class="form-control" name="email"
+                                    placeholder="Tu correo electronico" value="{{email}}">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="font-weight-bold">Contraseña <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control" name="password" placeholder="Contraseña"
+                                    value="{{password}}">
+                            </div>
+                            <div class="msg">{{ msg }}</div>
+                        
+                            <div class="form-group mb-5">
+                                <button type="submit" class="btn btn-outline-dark d-inline text-light mr-2 mb-3"><i
+                                        class="icon ion-md-person lead align-middle mr-2"></i> login</button>
+                            </div>
+                        
+                    </form>
+                    <a href="{{ url_for('registerEmpresa') }}"><small class="d-inline-block text-muted mt-5">Registrar empresa</small></a>
+                </div>
+
+            </div>
+
+        </div>
+</div>
+</section>
+
+
+
+
+</div>
+
+
+
+{% endblock %}

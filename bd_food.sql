@@ -1,6 +1,6 @@
 /*
 SQLyog Ultimate v13.1.1 (64 bit)
-MySQL - 10.4.21-MariaDB : Database - foodrosif
+MySQL - 5.7.33 : Database - foodrosif
 *********************************************************************
 */
 
@@ -38,17 +38,25 @@ DROP TABLE IF EXISTS `empresas`;
 
 CREATE TABLE `empresas` (
   `id_empresa` int(10) NOT NULL AUTO_INCREMENT,
-  `identificacion` varchar(20) DEFAULT NULL,
-  `imagen` blob DEFAULT NULL,
-  `nombres` varchar(255) DEFAULT NULL,
-  `direccion` varchar(255) DEFAULT NULL,
-  `correo` varchar(255) DEFAULT NULL,
-  `whatsapp` varchar(255) DEFAULT NULL,
+  `nombre` varchar(20) DEFAULT NULL,
   `descripcion` varchar(255) DEFAULT NULL,
+  `imagen` blob,
+  `celular` varchar(255) DEFAULT NULL,
+  `direccion` varchar(255) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id_empresa`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8;
 
 /*Data for the table `empresas` */
+
+insert  into `empresas`(`id_empresa`,`nombre`,`descripcion`,`imagen`,`celular`,`direccion`,`email`) values 
+(31,'NO HAY','NO HAY',NULL,'1234567890','CALLE 10 CARRERA 24',NULL),
+(32,'foo','doo',NULL,'1234567890','CALLE 10 CARRERA 24',NULL),
+(33,'foo','doo',NULL,'1234567890','CALLE 10 CARRERA 24',NULL),
+(34,'NO HAY','NO HAY',NULL,'1234567890','CALLE 10 CARRERA 24',NULL),
+(35,'NO HAY','NO HAY',NULL,'1234567890','CALLE 10 CARRERA 24',NULL),
+(36,'NO HAY','NO HAY',NULL,'1234567890','CALLE 10 CARRERA 24',NULL),
+(37,'NO HAY','NO HAY',NULL,'1234567890','CALLE 10 CARRERA 24',NULL);
 
 /*Table structure for table `estados` */
 
@@ -58,9 +66,13 @@ CREATE TABLE `estados` (
   `id_estado` int(10) NOT NULL AUTO_INCREMENT,
   `descripcion` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id_estado`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 /*Data for the table `estados` */
+
+insert  into `estados`(`id_estado`,`descripcion`) values 
+(0,'falta verificar'),
+(1,'verificada');
 
 /*Table structure for table `productos` */
 
@@ -68,7 +80,7 @@ DROP TABLE IF EXISTS `productos`;
 
 CREATE TABLE `productos` (
   `id_producto` int(10) NOT NULL AUTO_INCREMENT,
-  `imagen` blob DEFAULT NULL,
+  `imagen` blob,
   `descripcion` varchar(255) DEFAULT NULL,
   `precio` float DEFAULT NULL,
   `id_empresa` int(10) DEFAULT NULL,
@@ -79,7 +91,6 @@ CREATE TABLE `productos` (
   KEY `id_estado` (`id_estado`),
   KEY `id_usuario` (`id_usuario`),
   CONSTRAINT `productos_ibfk_1` FOREIGN KEY (`id_empresa`) REFERENCES `empresas` (`id_empresa`),
-  CONSTRAINT `productos_ibfk_2` FOREIGN KEY (`id_estado`) REFERENCES `estados` (`id_estado`),
   CONSTRAINT `productos_ibfk_3` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -91,16 +102,15 @@ DROP TABLE IF EXISTS `usuarios`;
 
 CREATE TABLE `usuarios` (
   `id_usuario` int(10) NOT NULL AUTO_INCREMENT,
-  `usuario` varchar(255) DEFAULT NULL,
-  `contraseña` varchar(255) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
-  `id_email-conf` varchar(10) DEFAULT NULL,
+  `contraseña` varchar(255) DEFAULT NULL,
+  `confirmacion` varchar(1) DEFAULT '0',
   `id_empresa` int(10) DEFAULT NULL,
   PRIMARY KEY (`id_usuario`),
   KEY `id_empresa` (`id_empresa`),
-  KEY `id_email-conf` (`id_email-conf`),
+  KEY `id_email-conf` (`confirmacion`),
   CONSTRAINT `usuarios_ibfk_1` FOREIGN KEY (`id_empresa`) REFERENCES `empresas` (`id_empresa`)
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8;
 
 /*Data for the table `usuarios` */
 
