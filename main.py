@@ -76,27 +76,32 @@ def login():
 
 @app.route("/registerEmpresa", methods=["GET", "POST"])
 def registerEmpresa():
+    print("aa")
     if (
         request.method == "POST"
         and "nombre" in request.form
         and "descripcion" in request.form
+        and "imagen" in request.files
         and "celular" in request.form
         and "direccion" in request.form
         and "email" in request.form
         and "password" in request.form
     ):
 
-        nombre = request.form["nombre"]
-        descripcion = request.form["descripcion"]
-        celular = request.form["celular"]
-        direccion = request.form["direccion"]
-        email = request.form["email"]
-        password = request.form["password"]
+        nombre = request.form.get("nombre")
+        descripcion = request.form.get("descripcion")
+        print("0")
+        imagen = request.files['imagen']
+        print("1 "+nombre+" "+str(imagen))
+        celular = request.form.get("celular")
+        direccion = request.form.get("direccion")
+        email = request.form.get("email")
+        password = request.form.get("password")
 
         cursor = db.cursor(dictionary=True)
         cursor.execute("SELECT * FROM empresas WHERE email = %s", (email,))
         cuenta = cursor.fetchone()
-        
+        print("2")
         token=s.dumps(email, salt='email-confirm')
         link= url_for('confirmarEmail', token=token, _external=True)
         caracterspecial = ["$", "@", "#", "%"]
@@ -145,42 +150,51 @@ def registerEmpresa():
         if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
             flash("¡Dirección de correo electrónico no válida!")
             is_valid = False
-
+        print("3")
         if (
             not nombre
             or not descripcion
+            or not imagen
             or not celular
             or not direccion
             or not email
             or not password
         ):
             flash("¡Por favor llene el formulario!")
+            print("4")
             is_valid = False
             # if is_valid:
             #   return is_valid
 
         if is_valid == False:
+            print("5")
             return render_template(
                 "registroEmpresa.html",
                 nombre=nombre,
                 descripcion=descripcion,
+                imagen=imagen,
                 celular=celular,
                 direccion=direccion,
                 email=email,
                 password=password,
             )            
+        print("6")
+        nombre_imagen = imagen.filename
+        imagen.save('./static/imagen'+ nombre_imagen)
+        imagen='/static/imagen' + nombre_imagen
         
-
         password = sha256(password.encode("utf-8")).hexdigest()
         cursor.execute(
-            "INSERT INTO empresas(nombre, descripcion, celular, direccion) VALUES (%s, %s, %s, %s)",
+            "INSERT INTO empresas(nombre, descripcion, imagen, celular, direccion) VALUES (%s, %s, %s, %s, %s)",
             (
                 nombre,
                 descripcion,
+                imagen,
                 celular,
                 direccion,
             ),
         )
+        print("7")
         cursor.execute("SELECT * FROM empresas ORDER BY id_empresa DESC LIMIT 1 " )
         row=cursor.fetchone()
         if row is not None:
@@ -194,6 +208,7 @@ def registerEmpresa():
                 row,
             ),
         )
+        print("8")
         #cursor.commit()
         cursor.close()
         msg = EmailMessage()
@@ -234,9 +249,12 @@ def confirmarEmail(token):
 # ===========================================================================================================================================
 @app.get("/login/cerrar_Sesion")
 def cerrarSesion():
-    session.pop("login", None)
+    """session.pop("login", None)
     session.pop("id_usuario", None)
-    session.pop("email", None)
+    session.pop("email", None)"""
+    session.clear()
+
+
     return redirect(url_for("login"))
 
 
