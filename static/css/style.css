@@ -61,7 +61,7 @@ body {
 }
 
 .register-bg {
-    background-image: url(/static/mandibula3.png);
+    background-image: url(/static/imagenTemplates/mandibula2.jpg);
     background-size: cover;
     background-repeat: no-repeat;
     min-height: 90vh;

@@ -1,22 +1,15 @@
-
+from config.database import db
 from flask import Flask, flash, render_template, request, redirect, url_for, session
-from itsdangerous import SignatureExpired, URLSafeTimedSerializer
-import mysql.connector
 import re
 from hashlib import sha256
-from email.message import EmailMessage
-from smtplib import SMTP
-from flask_mail import Mail, Message
+from models import userModel
+from itsdangerous import SignatureExpired, URLSafeTimedSerializer
 
-db = mysql.connector.connect(
-    host="localhost", user="root", password="", port=3306, database="foodrosif"
-)
-db.autocommit = True
 
 app = Flask(__name__)
 #app.config.from_pyfile('config.cfg')
 app.secret_key = "##91!IyAj#FqkZ2C"
-mail=Mail(app)
+
 s=URLSafeTimedSerializer('Thisisasecret')
 
 @app.get("/")
@@ -76,7 +69,6 @@ def login():
 
 @app.route("/registerEmpresa", methods=["GET", "POST"])
 def registerEmpresa():
-    print("aa")
     if (
         request.method == "POST"
         and "nombre" in request.form
@@ -87,23 +79,16 @@ def registerEmpresa():
         and "email" in request.form
         and "password" in request.form
     ):
-
         nombre = request.form.get("nombre")
         descripcion = request.form.get("descripcion")
-        print("0")
         imagen = request.files['imagen']
-        print("1 "+nombre+" "+str(imagen))
         celular = request.form.get("celular")
         direccion = request.form.get("direccion")
         email = request.form.get("email")
         password = request.form.get("password")
 
-        cursor = db.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM empresas WHERE email = %s", (email,))
-        cuenta = cursor.fetchone()
-        print("2")
-        token=s.dumps(email, salt='email-confirm')
-        link= url_for('confirmarEmail', token=token, _external=True)
+        cuenta = userModel.correoExistente(email)
+        
         caracterspecial = ["$", "@", "#", "%"]
         is_valid = True
 
@@ -179,50 +164,16 @@ def registerEmpresa():
                 password=password,
             )            
         print("6")
-        nombre_imagen = imagen.filename
-        imagen.save('./static/imagen'+ nombre_imagen)
-        imagen='/static/imagen' + nombre_imagen
-        
+        token=s.dumps(email, salt='email-confirm')
+        link= url_for('confirmarEmail', token=token, _external=True)  
+
+        imagen = userModel.nombreImagen(imagen)
+
         password = sha256(password.encode("utf-8")).hexdigest()
-        cursor.execute(
-            "INSERT INTO empresas(nombre, descripcion, imagen, celular, direccion) VALUES (%s, %s, %s, %s, %s)",
-            (
-                nombre,
-                descripcion,
-                imagen,
-                celular,
-                direccion,
-            ),
-        )
-        print("7")
-        cursor.execute("SELECT * FROM empresas ORDER BY id_empresa DESC LIMIT 1 " )
-        row=cursor.fetchone()
-        if row is not None:
-            row = row["id_empresa"]
-        print(row)
-        cursor.execute(
-            "INSERT INTO usuarios(email, contraseña, id_empresa) VALUES (%s, %s, %s)",
-            (
-                email,
-                password,
-                row,
-            ),
-        )
-        print("8")
-        #cursor.commit()
-        cursor.close()
-        msg = EmailMessage()
-        msg.set_content("Confirmar tu correo aqui: {} ".format(link))
-        msg["Subject"] = "Registro en Foodrosif"
-        msg["From"] = "shaydruano2020@itp.edu.co"
-        msg["To"] = email
-        username = "shaydruano2020@itp.edu.co"
-        password = "1006663258"  # ==================================================================
-        server = SMTP("smtp.gmail.com:587")
-        server.starttls()
-        server.login(username, password)
-        server.send_message(msg)
-        server.quit()
+        
+        userModel.resgistrarEmpresa(nombre=nombre, descripcion=descripcion, imagen=imagen, celular=celular, direccion=direccion, email=email, password=password)    
+        
+        userModel.correoVerificacion(email=email, link=link)
         flash("¡Te has registrado con éxito!")
 
     elif request.method == "POST":
@@ -241,9 +192,9 @@ def confirmarEmail(token):
         cursor.execute("UPDATE usuarios SET confirmacion='1' WHERE email='"+email+"'")
         cursor.close()
     except SignatureExpired:
-        cursor = db.cursor()
+        """cursor = db.cursor()
         cursor.execute("DELETE FROM usuarios WHERE email='"+email+"' AND confirmacion='0'")
-        cursor.close()
+        cursor.close()"""
         return "<h1>paila nea</h1>"
     return "<h1>"+email+" R nea</h1>"
 # ===========================================================================================================================================

@@ -8,3 +8,6 @@ MYSQL_USERNAME = os.environ.get('MYSQL_USERNAME')
 MYSQL_PASSWORD = os.environ.get('MYSQL_PASSWORD')
 MYSQL_DATABASE = os.environ.get('MYSQL_DATABASE')
 MYSQL_PORT = os.environ.get('MYSQL_PORT')
+
+SMTP_EMAIL=os.environ.get('SMTP_EMAIL')
+SMTP_PASSWORD=os.environ.get('SMTP_PASSWORD')
