@@ -43,20 +43,13 @@ CREATE TABLE `empresas` (
   `imagen` blob,
   `celular` varchar(255) DEFAULT NULL,
   `direccion` varchar(255) DEFAULT NULL,
-  `email` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id_empresa`)
-) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
 
 /*Data for the table `empresas` */
 
-insert  into `empresas`(`id_empresa`,`nombre`,`descripcion`,`imagen`,`celular`,`direccion`,`email`) values 
-(31,'NO HAY','NO HAY',NULL,'1234567890','CALLE 10 CARRERA 24',NULL),
-(32,'foo','doo',NULL,'1234567890','CALLE 10 CARRERA 24',NULL),
-(33,'foo','doo',NULL,'1234567890','CALLE 10 CARRERA 24',NULL),
-(34,'NO HAY','NO HAY',NULL,'1234567890','CALLE 10 CARRERA 24',NULL),
-(35,'NO HAY','NO HAY',NULL,'1234567890','CALLE 10 CARRERA 24',NULL),
-(36,'NO HAY','NO HAY',NULL,'1234567890','CALLE 10 CARRERA 24',NULL),
-(37,'NO HAY','NO HAY',NULL,'1234567890','CALLE 10 CARRERA 24',NULL);
+insert  into `empresas`(`id_empresa`,`nombre`,`descripcion`,`imagen`,`celular`,`direccion`) values 
+(7,'NO HAY','no se','2022-04-2114827977975_the one you see coming_ by trinhdrawss.jpg','3107531564','CALLE 10 CARRERA 24');
 
 /*Table structure for table `estados` */
 
@@ -110,9 +103,12 @@ CREATE TABLE `usuarios` (
   KEY `id_empresa` (`id_empresa`),
   KEY `id_email-conf` (`confirmacion`),
   CONSTRAINT `usuarios_ibfk_1` FOREIGN KEY (`id_empresa`) REFERENCES `empresas` (`id_empresa`)
-) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
 /*Data for the table `usuarios` */
+
+insert  into `usuarios`(`id_usuario`,`email`,`contraseña`,`confirmacion`,`id_empresa`) values 
+(4,'shaydruano@gmail.com','eea2bb1489ee39ffb2240a3957ed343bbf3410ea92a1e53f957c253265767213','1',7);
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

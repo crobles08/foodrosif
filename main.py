@@ -47,7 +47,7 @@ def login():
             session["login"] = True
             session["id_usuario"] = cuenta["id_usuario"]
             session["email"] = cuenta["email"]
-            return "¡Has iniciado sesión con éxito!"
+            return redirect(url_for("muro"))
         else:
             flash("¡Nombre de usuario/contraseña incorrectos!")
             return render_template(
@@ -60,6 +60,14 @@ def login():
     return render_template("inicioSesion.html")
 
 # ===============================================================================================================================
+
+@app.route("/login/muro", methods=["GET", "POST"])
+def  muro():
+    return render_template("muro.html")
+
+
+
+
 
 @app.route("/registerEmpresa", methods=["GET", "POST"])
 def registerEmpresa():
@@ -278,11 +286,9 @@ def cambiarContra(email):
                     )   
 
                 passwordencriptada = sha256(password.encode("utf-8")).hexdigest()
-
                 userModel.cambioPassword(email=email, passwordencriptada=passwordencriptada)
                 flash("Contraseña corregida")
                 return render_template("inicioSesion.html")
-
         else:
             flash("Comprobar de que las contraseñas sean iguales!")
             return render_template(
