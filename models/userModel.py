@@ -65,3 +65,26 @@ def correoVerificacion(email, link):
     server.login(username, password)
     server.send_message(msg)
     server.quit()
+
+def correoRestablecerPassword(email, link_password):
+    msg = EmailMessage()
+    msg.set_content("Para restablecer tu contraseña ingresa al siguiente link (Tiempo limite 2 min) : {} ".format(link_password))
+    msg["Subject"] = "Recuperar contraseña"
+    msg["From"] = "shaydruano2020@itp.edu.co"
+    msg["To"] = email
+    username = "shaydruano2020@itp.edu.co"
+    password = "1006663258"  
+    server = SMTP("smtp.gmail.com:587")
+    server.starttls()
+    server.login(username, password)
+    server.send_message(msg)
+    server.quit()
+
+def cambioPassword(email, passwordencriptada):
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("UPDATE usuarios SET contraseña=%s WHERE email=%s",
+    (
+        passwordencriptada,
+        email,
+    ))
+    cursor.close()

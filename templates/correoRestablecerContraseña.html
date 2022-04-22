@@ -1,9 +1,7 @@
 {% extends 'base.html' %}
-
 {% block titulo %}
-foodrosif!
+Restablecer Contraseña
 {% endblock %}
-
 {% block contenido %}
 <section class="contact-box">
 
@@ -19,7 +17,7 @@ foodrosif!
 
         <div class="col-xl-7 col-lg-12 d-flex">
             <div class="container align-self-center p-6">
-                <h2 class="font-weight-bold mb-3">Iniciar sesion</h2>
+                <h2 class="font-weight-bold mb-3">Restablecer contraseña</h2>
                 <div class="flash">
                     {% with messages = get_flashed_messages() %}
                     {% if messages %}
@@ -32,40 +30,25 @@ foodrosif!
                     {% endwith %}
                 </div>
 
-                <form action="{{ url_for('login') }}" method="POST">
+                <form action="{{ url_for('restablecerPassword') }}" method="POST">
 
                     <div class="form-group mb-3">
                         <label class="font-weight-bold">Correo electronico <span class="text-danger">*</span></label>
                         <input type="email" class="form-control" name="email" placeholder="Tu correo electronico"
                             value="{{email}}">
                     </div>
-
-                    <div class="form-group mb-3">
-                        <label class="font-weight-bold">Contraseña <span class="text-danger">*</span></label>
-                        <input type="password" class="form-control" name="password" placeholder="Contraseña"
-                            value="{{password}}">
-                    </div>
-                    
                     <div class="msg">{{ msg }}</div>
 
                     <div class="form-group mb-5">
                         <button type="submit" class="btn btn-outline-dark d-inline text-light mr-2 mb-3 width-100"><i
-                                class="icon ion-md-person lead align-middle mr-2"></i> login</button>
+                                class="icon ion-md-person lead align-middle mr-2"></i> Verificar</button>
                     </div>
 
                 </form>
-                <a href="{{ url_for('restablecerPassword') }}"><small class="d-inline-block text-muted mt-5">¿Has olvidado tu contraseña?</small></a>
-                <br>
-                <a href="{{ url_for('registerEmpresa') }}"><small class="d-inline-block text-muted mt-5">Registrar
-                        empresa</small></a>
+
             </div>
 
         </div>
     </div>
 </section>
-
-
-
-
-
 {% endblock %}

@@ -1,3 +1,4 @@
+#from crypt import methods
 from config.database import db
 from flask import Flask, flash, render_template, request, redirect, url_for, session
 import re
@@ -16,9 +17,7 @@ s=URLSafeTimedSerializer('Thisisasecret')
 def inicio():
     return render_template("index.html")
 
-
 # =======================================================================================================================================
-
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -60,12 +59,7 @@ def login():
 
     return render_template("inicioSesion.html")
 
-
 # ===============================================================================================================================
-
-
-# ================================================================================================================================
-
 
 @app.route("/registerEmpresa", methods=["GET", "POST"])
 def registerEmpresa():
@@ -170,7 +164,7 @@ def registerEmpresa():
         imagen = userModel.nombreImagen(imagen)
 
         password = sha256(password.encode("utf-8")).hexdigest()
-        
+
         userModel.resgistrarEmpresa(nombre=nombre, descripcion=descripcion, imagen=imagen, celular=celular, direccion=direccion, email=email, password=password)    
         
         userModel.correoVerificacion(email=email, link=link)
@@ -181,7 +175,6 @@ def registerEmpresa():
         flash("¡Por favor llene el formulario!")
 
     return render_template("registroEmpresa.html")
-
 
 # ===========================================================================================================================================
 @app.route("/login/confirmarEmail/<token>")
@@ -198,15 +191,108 @@ def confirmarEmail(token):
         return "<h1>paila nea</h1>"
     return "<h1>"+email+" R nea</h1>"
 # ===========================================================================================================================================
+
 @app.get("/login/cerrar_Sesion")
 def cerrarSesion():
     """session.pop("login", None)
     session.pop("id_usuario", None)
     session.pop("email", None)"""
     session.clear()
-
-
     return redirect(url_for("login"))
 
+@app.route("/restablecerPassword", methods=["GET", "POST"])
+def restablecerPassword():
+    if (
+        request.method == "POST"
+        and "email" in request.form
+    ):
+        email = request.form.get("email")
+        cursor = db.cursor(dictionary=True)
+        cursor.execute(
+            "SELECT * FROM usuarios WHERE email = %s AND confirmacion='1'",
+            (
+                email,
+            ),
+        )
+        cuenta = cursor.fetchone()
+        cursor.close()
+        print("uno")
+        if not(cuenta):
+            flash('¡Esta cuenta no existe!')
+            return render_template('Index.html')
+
+        token_password=s.dumps(email, salt='restablecer-password')
+        link_password= url_for('cambiarPassword_a', token_password=token_password, _external=True)  
+
+        userModel.correoRestablecerPassword(email=email, link_password=link_password)
+        flash("Revisar el correo")
+
+    return render_template("correoRestablecerContraseña.html")
+        
+
+@app.route("/restablecerPassword_a/<token_password>")
+def cambiarPassword_a(token_password):
+    try:
+        email=s.loads(token_password, salt='restablecer-password', max_age=60)
+    except SignatureExpired:
+        return render_template("correoRestablecerContraseña.html")
+    return redirect(url_for('cambiarContra', email=email, _external=True))
+
+@app.route("/restablecerPass/<email>", methods=["GET", "POST"])
+def cambiarContra(email):
+    if request.method == "GET":
+        return render_template("restablecerPassword.html")
+    else:   
+        password = request.form.get("password")
+        password_verificacion= request.form.get("password_verificacion")
+        if password==password_verificacion:
+                caracterspecial = ["$", "@", "#", "%"]
+                is_valid = True
+                print(password)
+                print(len(password))
+                if not (int(len(password)) >= 8 and int(len(password)) <= 20):
+                    flash("La contraseña debe tener min 8 y max 20 caracteres")
+                    is_valid = False
+
+                if not any(char.isdigit() for char in password):
+                    flash("La contraseña debe tener al menos un número")
+                    is_valid = False
+
+                if not any(char.isupper() for char in password):
+                    flash("La contraseña debe tener al menos una letra mayúscula")
+                    is_valid = False
+
+                if not any(char.islower() for char in password):
+                        flash("La contraseña debe tener al menos una letra minúscula")
+                        is_valid = False
+
+                if not any(char in caracterspecial for char in password):
+                        flash("La contraseña debe tener al menos uno de los símbolos $,@,%,#")
+                        is_valid = False    
+
+                if is_valid == False:
+                    return render_template(
+                        "restablecerPassword.html",
+                        password=password,
+                        password_verificacion=password_verificacion,
+                    )   
+
+                passwordencriptada = sha256(password.encode("utf-8")).hexdigest()
+
+                userModel.cambioPassword(email=email, passwordencriptada=passwordencriptada)
+                flash("Contraseña corregida")
+                return render_template("inicioSesion.html")
+
+        else:
+            flash("Comprobar de que las contraseñas sean iguales!")
+            return render_template(
+                    "restablecerPassword.html",
+                    password=password,
+                    password_verificacion=password_verificacion,
+            )
+
+
+
+        
 
 app.run(debug=True)
