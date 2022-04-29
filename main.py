@@ -6,9 +6,7 @@ from hashlib import sha256
 from models import userModel
 from itsdangerous import SignatureExpired, URLSafeTimedSerializer
 
-
 app = Flask(__name__)
-#app.config.from_pyfile('config.cfg')
 app.secret_key = "##91!IyAj#FqkZ2C"
 
 s=URLSafeTimedSerializer('Thisisasecret')
@@ -16,8 +14,6 @@ s=URLSafeTimedSerializer('Thisisasecret')
 @app.get("/")
 def inicio():
     return render_template("index.html")
-
-# =======================================================================================================================================
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -55,19 +51,12 @@ def login():
                 email=email,
                 password=password,
             )    
-            
-
     return render_template("inicioSesion.html")
-
-# ===============================================================================================================================
 
 @app.route("/login/muro", methods=["GET", "POST"])
 def  muro():
-    return render_template("muro.html")
-
-
-
-
+    productos=userModel.listarProductos()
+    return render_template("muro.html", productos=productos)
 
 @app.route("/registerEmpresa", methods=["GET", "POST"])
 def registerEmpresa():
@@ -184,7 +173,6 @@ def registerEmpresa():
 
     return render_template("registroEmpresa.html")
 
-# ===========================================================================================================================================
 @app.route("/login/confirmarEmail/<token>")
 def confirmarEmail(token):
     try:
@@ -198,7 +186,6 @@ def confirmarEmail(token):
         cursor.close()"""
         return "<h1>paila nea</h1>"
     return "<h1>"+email+" R nea</h1>"
-# ===========================================================================================================================================
 
 @app.get("/login/cerrar_Sesion")
 def cerrarSesion():
@@ -237,7 +224,6 @@ def restablecerPassword():
 
     return render_template("correoRestablecerContraseña.html")
         
-
 @app.route("/restablecerPassword_a/<token_password>")
 def cambiarPassword_a(token_password):
     try:
@@ -298,6 +284,48 @@ def cambiarContra(email):
             )
 
 
+
+
+@app.route('/login/muro/crearProducto', methods=['GET', 'POST'])
+def crearProducto():
+    if request.method == 'GET':
+        return render_template('muro.html')
+    id_sesion= session['id_usuario']
+    imagen = request.files['imagen']
+    descripcion= request.form['descripcion'].upper()
+    precio = request.form['precio']
+    estado= request.form['estado']
+     
+    img = userModel.nombreImagen(imagen)
+    userModel.crearProducto(id_sesion=id_sesion, descripcion=descripcion, precio=precio,imagen=img, estado=estado)
+    
+
+    imagen.save('./static/imagenesProductos/'+str(img))
+    flash('Se ha creado el producto correctamente', 'success')
+    return redirect(url_for('muro'))
+
+@app.route('/login/muro/editarProducto/<string:id>', methods=['GET','POST'])
+def editarProducto(id):
+    if request.method == "GET":
+        return render_template("editarProducto.html")
+    else:
+        descripcion= request.form['descripcion'].upper()
+        precio = request.form['precio']
+        imagen = request.files['imagen']
+        estado = request.form['estado'] 
+        if imagen:
+                nombreImagen = userModel.nombreImagen(imagen)
+                imagen.save('./static/imagenesProductos/'+nombreImagen)
+        else:
+            imagenn = None  
+        userModel.editarProducto(descripcion=descripcion, precio=precio, imagenn=nombreImagen, id=id, estado=estado)
+        flash('Se ha editado el producto correctamente')  
+        return redirect(url_for('muro'))
+
+@app.route('/login/muro/eliminar_producto/<string:id>')
+def eliminarProducto(id):
+    userModel.eliminarProducto(id)
+    return redirect(url_for('muro'))
 
         
 

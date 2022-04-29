@@ -6,12 +6,6 @@ from smtplib import SMTP
 
 from flask import url_for
 
-
-
-
-#mail=Mail(app)
-
-
 def correoExistente(email):
     cursor = db.cursor(dictionary=True)
     cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
@@ -42,14 +36,11 @@ def resgistrarEmpresa(nombre, descripcion, imagen, celular, direccion, email, pa
     )       
     cursor.close()
 
-
-
 def nombreImagen(imagen):
     today = date.today()
     now = datetime.now()
     fecha= str(today)+str(now.hour)+str(now.minute)+str(now.second)+str(now.microsecond)
     nombreImagen = imagen.filename
-    imagen.save('./static/imagenesRegistro/' + nombreImagen)
     return str(fecha) + nombreImagen
 
 def correoVerificacion(email, link):
@@ -88,3 +79,42 @@ def cambioPassword(email, passwordencriptada):
         email,
     ))
     cursor.close()
+
+def listarProductos():
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM productos")
+    productos = cursor.fetchall()
+    return productos
+
+def crearProducto(id_sesion, descripcion, precio,imagen, estado):
+    cursor = db.cursor()
+    cursor.execute("SELECT id_empresa FROM usuarios WHERE id_usuario=%s",(id_sesion,))
+    id_empresa= cursor.fetchone()
+    cursor.execute("""insert into productos(
+                imagen,
+                descripcion,
+                precio,
+                id_empresa,
+                id_estado,
+                id_usuario
+            )values (%s, %s, %s, %s, %s, %s)
+        """, (imagen, descripcion, precio, id_empresa[0], estado, id_sesion,))
+    db.commit()
+
+def eliminarProducto(id):
+    cursor = db.cursor()
+    cursor.execute("DELETE FROM productos WHERE id_producto = %s", (id,))
+    db.commit()
+
+def editarProducto(id, descripcion, precio, imagenn, estado):
+    imagen_sql=''
+    if imagenn:
+        imagen_sql=", imagen= '"+imagenn+"'"
+        sql = " descripcion= '"+descripcion+"', precio = '"+precio+"'" + imagen_sql + ", id_estado="+estado+" WHERE id_producto = '"+id+"'"
+    elif imagenn is None:
+        sql = " descripcion= '"+descripcion+"', precio = '"+precio+"'" + imagen_sql + ", id_estado="+estado+" WHERE id_producto = '"+id+"'"
+    cursor = db.cursor()    
+    cursor.execute("UPDATE productos SET " + sql)
+    db.commit()
+
+
