@@ -55,7 +55,8 @@ def login():
 
 @app.route("/login/muro", methods=["GET", "POST"])
 def  muro():
-    productos=userModel.listarProductos()
+    id_sesion=session['id_usuario']
+    productos=userModel.listarProductos(id_sesion=id_sesion)
     return render_template("muro.html", productos=productos)
 
 @app.route("/registerEmpresa", methods=["GET", "POST"])
@@ -315,10 +316,11 @@ def editarProducto(id):
         estado = request.form['estado'] 
         if imagen:
                 nombreImagen = userModel.nombreImagen(imagen)
+                imagenn=nombreImagen
                 imagen.save('./static/imagenesProductos/'+nombreImagen)
         else:
             imagenn = None  
-        userModel.editarProducto(descripcion=descripcion, precio=precio, imagenn=nombreImagen, id=id, estado=estado)
+        userModel.editarProducto(descripcion=descripcion, precio=precio, imagenn=imagenn, id=id, estado=estado)
         flash('Se ha editado el producto correctamente')  
         return redirect(url_for('muro'))
 

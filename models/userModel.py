@@ -80,9 +80,9 @@ def cambioPassword(email, passwordencriptada):
     ))
     cursor.close()
 
-def listarProductos():
+def listarProductos(id_sesion):
     cursor = db.cursor()
-    cursor.execute("SELECT * FROM productos")
+    cursor.execute("SELECT * FROM productos where id_usuario=%s", (id_sesion,))
     productos = cursor.fetchall()
     return productos
 

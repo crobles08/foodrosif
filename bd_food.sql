@@ -64,8 +64,8 @@ CREATE TABLE `estados` (
 /*Data for the table `estados` */
 
 insert  into `estados`(`id_estado`,`descripcion`) values 
-(0,'falta verificar'),
-(1,'verificada');
+(0,'activo'),
+(1,'inactivo');
 
 /*Table structure for table `productos` */
 
@@ -73,7 +73,7 @@ DROP TABLE IF EXISTS `productos`;
 
 CREATE TABLE `productos` (
   `id_producto` int(10) NOT NULL AUTO_INCREMENT,
-  `imagen` blob,
+  `imagen` varchar(255) DEFAULT NULL,
   `descripcion` varchar(255) DEFAULT NULL,
   `precio` float DEFAULT NULL,
   `id_empresa` int(10) DEFAULT NULL,
@@ -84,7 +84,8 @@ CREATE TABLE `productos` (
   KEY `id_estado` (`id_estado`),
   KEY `id_usuario` (`id_usuario`),
   CONSTRAINT `productos_ibfk_1` FOREIGN KEY (`id_empresa`) REFERENCES `empresas` (`id_empresa`),
-  CONSTRAINT `productos_ibfk_3` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`)
+  CONSTRAINT `productos_ibfk_3` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`),
+  CONSTRAINT `productos_ibfk_4` FOREIGN KEY (`id_estado`) REFERENCES `estados` (`id_estado`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Data for the table `productos` */
